@@ -97,9 +97,11 @@ class MainGraphique {
 	}
 
 	public static void main(String[] args) throws ErreurCoordonneesException, CouleurPieceException, CaseOccupeeException, ErreurDeplacementException, RoiNonTrouveException {
-		Plateau p = new Plateau();
-		Fenetre f = new Fenetre("Jeu d'échecs", 10 * 75, 10 * 75);
+		Fenetre f = new Fenetre("Jeu d'échecs", 8 * 75, 10 * 75);
 		Souris souris = f.getSouris();
+		
+		Plateau p = choixModeJeu(f);
+
 		char couleurQuiJoue = 'B';
 
 		Piece selectionne1;
@@ -176,4 +178,52 @@ class MainGraphique {
 
 		}
 	}
+
+	private static Plateau choixModeJeu(Fenetre fenetre) throws ErreurCoordonneesException, CouleurPieceException, CaseOccupeeException {
+		fenetre.ajouter(new Texte("A quel mode de jeu voulez-vous jouer ?", new Font("Arial", Font.PLAIN, 28), new Point(300, 400)));
+		
+		Rectangle noCheat = new Rectangle(Couleur.BLEU, new Point(150, 300), new Point(250, 350), true);
+		fenetre.ajouter(noCheat);
+		fenetre.ajouter(new Texte("No Cheat", new Font("Arial", Font.PLAIN, 20), new Point(200, 325)));
+
+		Rectangle cheat = new Rectangle(Couleur.ROUGE, new Point(350, 300), new Point(450, 350), true);
+		fenetre.ajouter(cheat);
+		fenetre.ajouter(new Texte("Cheat", new Font("Arial", Font.PLAIN, 28), new Point(400, 325)));
+		
+		fenetre.rafraichir();
+
+		Souris souris = fenetre.getSouris();
+		Plateau plateau = null;
+
+		while (plateau == null) {
+			try {
+				Thread.sleep(10);
+			} catch (Exception e) {
+			}
+
+			int x = souris.getPosition().getX();
+			int y = souris.getPosition().getY();
+
+			if (souris.getClicGauche()) {
+                if (estDansRectangle(x, y, noCheat)) {
+					plateau = new Plateau(false);
+                }
+                else if (estDansRectangle(x, y, cheat)) {
+					plateau = new Plateau(true);
+                }
+			}
+		}
+
+		return plateau;
+	}
+
+	private static boolean estDansRectangle(int x, int y, Rectangle rect) {
+        int xMin = rect.getA().getX();
+        int yMin = rect.getA().getY();
+        int xMax = rect.getB().getX();
+        int yMax = rect.getB().getY();
+
+        return (x >= xMin && x <= xMax && y >= yMin && y <= yMax);
+    }
+
 }
